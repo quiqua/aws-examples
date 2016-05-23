@@ -1,0 +1,37 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions": [
+        {
+            "essential": true,
+            "image": "redis",
+            "name": "redis",
+            "memory": 128
+        },
+        {
+            "command": ["gunicorn", "-b", "0.0.0.0:5000", "wsgi:app"],
+            "essential": true,
+            "links": [
+                "redis"
+            ],
+            "name": "flask-app",
+            "portMappings": [
+                {
+                    "containerPort": 5000,
+                    "hostPort": 80
+                }
+            ],
+            "memory": 378,
+            "image": "<id>.dkr.ecr.us-east-1.amazonaws.com/hnt-web:latest"
+        },
+        {
+            "command": ["celery", "worker", "-A", "wsgi:celery", "-l", "INFO", "-P", "eventlet"],
+            "essential": true,
+            "links": [
+                "redis"
+            ],
+            "name": "celery",
+            "memory": 378,
+            "image": "<id>.dkr.ecr.us-east-1.amazonaws.com/hnt-worker:latest"
+        }
+    ]
+}

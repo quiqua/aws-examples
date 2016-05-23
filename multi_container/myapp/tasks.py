@@ -4,17 +4,12 @@ import time
 
 from celery import states
 from celery.exceptions import Ignore
-from celery.utils.log import get_task_logger
 
 from .extensions import celery, redis_store
-
-task_logger = get_task_logger(__name__)
 
 
 @celery.task(bind=True)
 def long_running_task(self, name):
-    task_logger.info("FOOBAR")
-
     redis_key = "celery-locks-{0}".format(name)
     lock = redis_store.lock(redis_key)
     has_lock = False
