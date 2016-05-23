@@ -1,0 +1,16 @@
+FROM python:3.5.1-alpine
+
+RUN apk add --update gcc musl-dev && rm -rf /var/cache/apk/*
+
+COPY . /app
+
+RUN pip install eventlet
+RUN pip install -e /app/.
+
+WORKDIR /app
+
+RUN adduser -S -H -g '' celery_user
+
+USER celery_user
+
+CMD ["celery", "worker", "-A", "wsgi:celery", "-l", "INFO", "-P", "eventlet", "-c", "1"]

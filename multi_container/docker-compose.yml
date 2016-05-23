@@ -1,0 +1,25 @@
+version: '2'
+services:
+    web_v2:
+        restart: "always"
+        build:
+            context: .
+            dockerfile: "Dockerfile.flaskapp"
+        ports:
+            - "5000:5000"
+        command: ["gunicorn", "-b", "0.0.0.0:5000", "--access-logfile", "-", "--error-logfile", "-", "wsgi:app"]
+        links:
+          - redis
+
+    worker:
+      restart: "always"
+      build:
+          context: .
+          dockerfile: "Dockerfile.celeryworker"
+      command: ["celery", "worker", "-A", "wsgi:celery", "-l", "INFO", "-P", "eventlet", "-c", "1"]
+      links:
+          - redis
+
+    redis:
+      image: redis
+
