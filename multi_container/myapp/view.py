@@ -37,3 +37,11 @@ def list_all_tasks():
             result[key.decode()] = [task.state, task.info]
 
     return jsonify(tasks=result)
+
+
+@api.route(u"/cleanup")
+def clean_task_history():
+    keys = redis_store.keys(pattern="my-task-*")
+    if keys:
+        redis_store.delete(*keys)
+    return jsonify({"message": "Cleaned up {} tasks".format(len(keys))})
